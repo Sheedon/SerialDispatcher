@@ -8,7 +8,8 @@ import org.sheedon.serial.utils.CRC16M;
 import org.sheedon.serial.utils.CRC_16;
 
 /**
- * @Description: java类作用描述
+ * 反馈内容解析器
+ *
  * @Author: sheedon
  * @Email: sheedonsun@163.com
  * @Date: 2020/3/11 0:45
@@ -93,7 +94,7 @@ public class CheckDataConverter implements DataConverter<StringBuffer, DataCheck
         String checkStr = content.substring(content.length() - 4);
         String contentStr = content.substring(0, content.length() - 4);
         StringBuilder checkResult = new StringBuilder(CRC16M.getBufHexStr(CRC_16.getSendBuf(contentStr)));
-        checkResult = checkResult.delete(0,content.length() - 4);
+        checkResult = checkResult.delete(0, content.length() - 4);
         for (int index = checkResult.length(); index < 4; index++) {
             checkResult.insert(0, "0");
         }
