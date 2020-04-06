@@ -152,6 +152,11 @@ final class RealCall implements Call {
                 return;
             }
 
+            if(serialClient.port == null){
+                client.dispatcher().finishedByLocal(id(), new IllegalArgumentException("port is null"));
+                return;
+            }
+
             boolean isSuccess = serialClient.port.sendMessage(data);
 
             if (!isSuccess) {
