@@ -42,7 +42,7 @@ public class SerialRunnable extends NamedRunnable {
         String id = dispatcher.findNetByBackNameToFirst(backName);
 
         // 结束网络调度
-        dispatcher.finishedByNet(id, getResponse(data));
+        dispatcher.finishedByNet(id, backName, getResponse(data));
     }
 
     /**

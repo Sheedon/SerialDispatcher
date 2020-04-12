@@ -45,6 +45,28 @@ final class RealCall implements Call {
         enqueue(null);
     }
 
+    @Override
+    public void bind(Callback callback) {
+        if (originalRequest == null
+                || originalRequest.backName() == null
+                || originalRequest.backName().isEmpty()
+                || callback == null) {
+            return;
+        }
+
+        client.dispatcher().bindCallback(originalRequest.backName(), callback);
+    }
+
+    @Override
+    public void unBind() {
+        if (originalRequest == null
+                || originalRequest.backName() == null
+                || originalRequest.backName().isEmpty()) {
+            return;
+        }
+        client.dispatcher().unBindCallback(originalRequest.backName());
+    }
+
     /**
      * 新增有消息反馈的数据
      *
@@ -152,7 +174,7 @@ final class RealCall implements Call {
                 return;
             }
 
-            if(serialClient.port == null){
+            if (serialClient.port == null) {
                 client.dispatcher().finishedByLocal(id(), new IllegalArgumentException("port is null"));
                 return;
             }

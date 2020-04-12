@@ -39,6 +39,9 @@ public class Dispatcher {
     // 数据反馈处理集合
     private final Map<String, Deque<String>> dataCalls = new LinkedHashMap<>();
 
+    // 额外反馈集合
+    private final Map<String, Callback> callbacks = new ConcurrentHashMap<>();
+
     // 超时处理
     private TimeOutRunnable timeOut = new TimeOutRunnable(this, timeOutCalls);
 
@@ -57,6 +60,7 @@ public class Dispatcher {
 
     /**
      * 核实转化为对应的反馈名
+     *
      * @param topic 主题
      */
     public DataConverter<String, String> callbackNameConverter(String topic) {
@@ -150,6 +154,14 @@ public class Dispatcher {
         publishService.execute(call);
     }
 
+    public void bindCallback(String backName, Callback callback) {
+        callbacks.put(backName, callback);
+    }
+
+    public void unBindCallback(String backName) {
+        callbacks.remove(backName);
+    }
+
 
     protected synchronized void enqueueCallback(Runnable runnable) {
         callbackService.execute(runnable);
@@ -215,7 +227,9 @@ public class Dispatcher {
      *
      * @param id 请求UUID
      */
-    public synchronized void finishedByNet(String id, Response response) {
+    public synchronized void finishedByNet(String id, String backName, Response response) {
+
+        noticeCallback(backName, response);
 
         ReadyTask task = distributeTask(id);
         if (task == null)
@@ -230,6 +244,24 @@ public class Dispatcher {
         // 移除Call
         removeCall(task);
 
+    }
+
+    /**
+     * 反馈通知
+     *
+     * @param backName 反馈名
+     * @param response 反馈结果
+     */
+    private void noticeCallback(String backName, Response response) {
+        if (backName == null)
+            return;
+
+        Callback callback = callbacks.get(backName);
+
+        if (callback == null)
+            return;
+
+        callback.onResponse(response);
     }
 
     /**
