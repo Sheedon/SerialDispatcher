@@ -46,7 +46,7 @@ final class RealCall implements Call {
     }
 
     @Override
-    public void bind(Callback callback) {
+    public void addBindCallback(Callback callback) {
         if (originalRequest == null
                 || originalRequest.backName() == null
                 || originalRequest.backName().isEmpty()
@@ -54,17 +54,17 @@ final class RealCall implements Call {
             return;
         }
 
-        client.dispatcher().bindCallback(originalRequest.backName(), callback);
+        client.dispatcher().addCallback(originalRequest.backName(), callback);
     }
 
     @Override
-    public void unBind() {
+    public void removeBindCallback() {
         if (originalRequest == null
                 || originalRequest.backName() == null
                 || originalRequest.backName().isEmpty()) {
             return;
         }
-        client.dispatcher().unBindCallback(originalRequest.backName());
+        client.dispatcher().removeCallback(originalRequest.backName());
     }
 
     /**

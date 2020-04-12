@@ -19,9 +19,9 @@ public interface Call extends Cloneable {
 
     <R extends Response> void enqueue(Callback<R> callback);
 
-    <R extends Response> void bind(Callback<R> callback);
+    <R extends Response> void addBindCallback(Callback<R> callback);
 
-    void unBind();
+    void removeBindCallback();
 
     /**
      * Cancels the request, if possible. Requests that are already complete cannot be canceled.

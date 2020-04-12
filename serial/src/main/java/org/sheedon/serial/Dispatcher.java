@@ -154,11 +154,11 @@ public class Dispatcher {
         publishService.execute(call);
     }
 
-    public void bindCallback(String backName, Callback callback) {
+    public void addCallback(String backName, Callback callback) {
         callbacks.put(backName, callback);
     }
 
-    public void unBindCallback(String backName) {
+    public void removeCallback(String backName) {
         callbacks.remove(backName);
     }
 
