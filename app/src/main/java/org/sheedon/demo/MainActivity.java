@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements SerialRealCallbac
                 System.out.println(body == null ? "" : body.getBody());
             }
         });
+
 //        call.enqueue(new Callback() {
 //            @Override
 //            public void onFailure(Throwable e) {

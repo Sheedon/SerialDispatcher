@@ -23,7 +23,7 @@ import static org.sheedon.serial.Util.checkNotNull;
  * @Date: 2020/2/21 8:52
  */
 public class SerialClient implements SerialRealCallback, RealClient,
-        Call.Factory, Observable.Factory {
+        SerialFactory {
 
     private static final String TAG = "SERIAL_CLIENT";
 

@@ -27,8 +27,4 @@ public interface Observable extends Cloneable{
 
 
     Observable clone();
-
-    interface Factory {
-        Observable newObservable(Request request);
-    }
 }
