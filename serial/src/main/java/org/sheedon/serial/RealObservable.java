@@ -35,9 +35,13 @@ final class RealObservable implements Observable {
     }
 
 
-
+    /**
+     * 订阅内容，并添加 callback 绑定
+     *
+     * @param callback Callback
+     */
     @Override
-    public void enqueue(Callback callback) {
+    public void subscribe(Callback callback) {
         if (originalRequest == null
                 || originalRequest.backName() == null
                 || originalRequest.backName().isEmpty()

@@ -13,7 +13,7 @@ public interface Observable extends Cloneable{
      */
     Request request();
 
-    <R extends Response> void enqueue(Callback<R> callback);
+    <R extends Response> void subscribe(Callback<R> callback);
 
     /**
      * Cancels the request, if possible. Requests that are already complete cannot be canceled.

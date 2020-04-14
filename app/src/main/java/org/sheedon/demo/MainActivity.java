@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements SerialRealCallbac
 
         Call call = client.newCall(request);
         Observable observable = client.newObservable(request);
-        observable.enqueue(new Callback<Response>() {
+        observable.subscribe(new Callback<Response>() {
             @Override
             public void onFailure(Throwable e) {
                 System.out.println(e);
