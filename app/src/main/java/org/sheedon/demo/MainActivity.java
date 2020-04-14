@@ -7,6 +7,7 @@ import android.os.Bundle;
 import org.sheedon.demo.converters.DataConverterFactory;
 import org.sheedon.serial.Call;
 import org.sheedon.serial.Callback;
+import org.sheedon.serial.Observable;
 import org.sheedon.serial.Request;
 import org.sheedon.serial.RequestBuilder;
 import org.sheedon.serial.Response;
@@ -34,7 +35,8 @@ public class MainActivity extends AppCompatActivity implements SerialRealCallbac
                 .build();
 
         Call call = client.newCall(request);
-        call.enqueue(new Callback() {
+        Observable observable = client.newObservable(request);
+        observable.enqueue(new Callback<Response>() {
             @Override
             public void onFailure(Throwable e) {
                 System.out.println(e);
@@ -45,8 +47,25 @@ public class MainActivity extends AppCompatActivity implements SerialRealCallbac
                 ResponseBody body = response.body();
                 System.out.println(body == null ? "" : body.getBody());
             }
-
         });
+//        call.enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Throwable e) {
+//                System.out.println(e);
+//            }
+//
+//            @Override
+//            public void onResponse(Response response) {
+//                ResponseBody body = response.body();
+//                System.out.println(body == null ? "" : body.getBody());
+//            }
+//
+//        });
+
+        call.publishNotCallback();
+        observable.cancel();
+        Call call2 = client.newCall(request);
+        call2.publishNotCallback();
     }
 
     @Override

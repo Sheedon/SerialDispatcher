@@ -45,28 +45,6 @@ final class RealCall implements Call {
         enqueue(null);
     }
 
-    @Override
-    public void addBindCallback(Callback callback) {
-        if (originalRequest == null
-                || originalRequest.backName() == null
-                || originalRequest.backName().isEmpty()
-                || callback == null) {
-            return;
-        }
-
-        client.dispatcher().addCallback(originalRequest.backName(), callback);
-    }
-
-    @Override
-    public void removeBindCallback() {
-        if (originalRequest == null
-                || originalRequest.backName() == null
-                || originalRequest.backName().isEmpty()) {
-            return;
-        }
-        client.dispatcher().removeCallback(originalRequest.backName());
-    }
-
     /**
      * 新增有消息反馈的数据
      *

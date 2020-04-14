@@ -1,21 +1,17 @@
 package org.sheedon.serial;
 
 /**
- * 调度封装的基本接口
+ * 观察者
  *
  * @Author: sheedon
  * @Email: sheedonsun@163.com
- * @Date: 2020/2/11 12:46
+ * @Date: 2020/4/14 12:58
  */
-public interface Call extends Cloneable {
+public interface Observable extends Cloneable{
     /**
      * Returns the original request that initiated this call.
      */
     Request request();
-
-
-    void publishNotCallback();
-
 
     <R extends Response> void enqueue(Callback<R> callback);
 
@@ -30,9 +26,9 @@ public interface Call extends Cloneable {
     boolean isCanceled();
 
 
-    Call clone();
+    Observable clone();
 
     interface Factory {
-        Call newCall(Request request);
+        Observable newObservable(Request request);
     }
 }

@@ -22,7 +22,8 @@ import static org.sheedon.serial.Util.checkNotNull;
  * @Email: sheedonsun@163.com
  * @Date: 2020/2/21 8:52
  */
-public class SerialClient implements SerialRealCallback, RealClient, Call.Factory {
+public class SerialClient implements SerialRealCallback, RealClient,
+        Call.Factory, Observable.Factory {
 
     private static final String TAG = "SERIAL_CLIENT";
 
@@ -64,6 +65,17 @@ public class SerialClient implements SerialRealCallback, RealClient, Call.Factor
     @Override
     public Call newCall(Request request) {
         return RealCall.newRealCall(this, request);
+    }
+
+    /**
+     * 创建观察者
+     *
+     * @param request 请求数据
+     * @return Observable
+     */
+    @Override
+    public Observable newObservable(Request request) {
+        return RealObservable.newRealObservable(this, request);
     }
 
 
