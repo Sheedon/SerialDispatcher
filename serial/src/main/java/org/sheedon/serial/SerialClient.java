@@ -49,11 +49,13 @@ public class SerialClient implements SerialRealCallback, RealClient,
         checkNotNull(builder.path, "path is null");
         try {
             port = new SerialPort(builder.path, builder.baudRate, builder.flags, this, this.dispatcher);
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (SecurityException e) {
             e.printStackTrace();
         }
+    }
+
+    public SerialPort getPort() {
+        return port;
     }
 
     /**

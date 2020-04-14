@@ -5,6 +5,7 @@ import org.sheedon.serial.DataCheckBean;
 import org.sheedon.serial.DataConverter;
 import org.sheedon.serial.Dispatcher;
 import org.sheedon.serial.NamedRunnable;
+import org.sheedon.serial.ResponseBody;
 import org.sheedon.serial.Util;
 import org.sheedon.serial.internal.CharsUtils;
 
@@ -43,20 +44,20 @@ public class SerialPort {
      */
     public SerialPort(String path, int baudRate, int flags,
                       SerialRealCallback callback, Dispatcher dispatcher)
-            throws IOException, SecurityException {
+            throws SecurityException {
         Util.checkNotNull(path, "path is null");
         Util.checkNotNull(dispatcher, "dispatcher is null");
         converter = Util.checkNotNull(dispatcher.checkDataConverter(), "converter is null");
-        SerialRunnable runnable = new SerialRunnable(path);
+//        SerialRunnable runnable = new SerialRunnable(path);
         this.callback = callback;
 
-        serialPort = new android.serialport.SerialPort(new File(path), baudRate, flags);
-
-        inputStream = serialPort.getInputStream();
-        outputStream = serialPort.getOutputStream();
-
-        thread = new Thread(runnable);
-        thread.start();
+//        serialPort = new android.serialport.SerialPort(new File(path), baudRate, flags);
+//
+//        inputStream = serialPort.getInputStream();
+//        outputStream = serialPort.getOutputStream();
+//
+//        thread = new Thread(runnable);
+//        thread.start();
 
     }
 
@@ -153,9 +154,13 @@ public class SerialPort {
 
 
     public boolean sendMessage(String data) {
-//        callback.onCallback(ResponseBody.build("7A", "08000101", "0101", "", "7A080001010101"));
-//        return true;
-        return setData(CharsUtils.hexStringToBytes(data));
+        callback.onCallback(ResponseBody.build("7A", "08000101", "0101", "", "7A080001010101"));
+        return true;
+//        return setData(CharsUtils.hexStringToBytes(data));
+    }
+
+    public void test(){
+        callback.onCallback(ResponseBody.build("7A", "08000101", "0101", "", "7A080001010101"));
     }
 
     /**

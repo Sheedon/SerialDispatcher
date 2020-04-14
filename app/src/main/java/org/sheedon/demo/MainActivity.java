@@ -64,9 +64,10 @@ public class MainActivity extends AppCompatActivity implements SerialRealCallbac
 //        });
 
         call.publishNotCallback();
-        observable.cancel();
-        Call call2 = client.newCall(request);
-        call2.publishNotCallback();
+//        observable.cancel();
+//        Call call2 = client.newCall(request);
+//        call2.publishNotCallback();
+        client.getPort().test();
     }
 
     @Override
