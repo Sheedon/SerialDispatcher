@@ -121,12 +121,12 @@ public class SerialPort {
                 break;
 
             if (convert.getBody() == null) {
-                serialData.substring(0, convert.getEndIndex());
+                serialData.delete(0, convert.getEndIndex());
             } else {
                 if (callback != null) {
                     callback.onCallback(convert.getBody());
                 }
-                serialData.substring(0, convert.getEndIndex());
+                serialData.delete(0, convert.getEndIndex());
             }
         }
         isStartDealWithData = false;
