@@ -3,6 +3,7 @@ package org.sheedon.demo;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import org.sheedon.demo.converters.DataConverterFactory;
 import org.sheedon.serial.Call;
@@ -22,32 +23,58 @@ public class MainActivity extends AppCompatActivity implements SerialRealCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SerialClient client = new SerialClient.Builder()
-                .path("/tty/s4")
-                .name("qrcode")
+        final SerialClient client = new SerialClient.Builder()
+                .path("/dev/ttyS2")
+                .baudRate(115200)
+                .name("115200")
                 .addConverterFactory(DataConverterFactory.create())
                 .callback(this)
                 .build();
 
-        Request request = new RequestBuilder()
-                .backName("0101")
-                .data("7A123132137456")
-                .build();
-
-        Call call = client.newCall(request);
-        Observable observable = client.newObservable(request);
-        observable.subscribe(new Callback<Response>() {
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(Throwable e) {
-                System.out.println(e);
-            }
+            public void run() {
+                while (true){
+                    Request request = new RequestBuilder()
+                            .backName("0007")
+                            .data("7A07000006BC7C")
+                            .build();
 
-            @Override
-            public void onResponse(Response response) {
-                ResponseBody body = response.body();
-                System.out.println(body == null ? "" : body.getBody());
+                    Call call = client.newCall(request);
+                    call.enqueue(new Callback<Response>() {
+                        @Override
+                        public void onFailure(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onResponse(Response response) {
+
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-        });
+        }).start();
+//        Call call = client.newCall(request);
+//        Observable observable = client.newObservable(request);
+//        observable.subscribe(new Callback<Response>() {
+//            @Override
+//            public void onFailure(Throwable e) {
+//                System.out.println(e);
+//            }
+//
+//            @Override
+//            public void onResponse(Response response) {
+//                ResponseBody body = response.body();
+//                System.out.println(body == null ? "" : body.getBody());
+//            }
+//        });
 
 //        call.enqueue(new Callback() {
 //            @Override
@@ -63,14 +90,14 @@ public class MainActivity extends AppCompatActivity implements SerialRealCallbac
 //
 //        });
 
-        call.publishNotCallback();
-        observable.cancel();
-        Call call2 = client.newCall(request);
-        call2.publishNotCallback();
+//        call.publishNotCallback();
+//        observable.cancel();
+//        Call call2 = client.newCall(request);
+//        call2.publishNotCallback();
     }
 
     @Override
     public void onCallback(ResponseBody data) {
-
+        Log.v("SXD",data.getBody());
     }
 }
