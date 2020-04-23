@@ -47,7 +47,7 @@ public final class Request {
     private long calcBackNameCode(byte[] nameBytes) {
         long code = 0;
         for (byte nameByte : nameBytes) {
-            code = code * 256 + nameByte & 0xFF;
+            code = code * 256 + (nameByte & 0xFF);
         }
         return code;
     }
