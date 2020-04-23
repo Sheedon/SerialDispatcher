@@ -4,13 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.DelayQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,10 +35,10 @@ public class Dispatcher {
 
 
     // 数据反馈处理集合
-    private final Map<String, Deque<String>> dataCalls = new LinkedHashMap<>();
+    private final Map<Long, Deque<String>> dataCalls = new LinkedHashMap<>();
 
     // 额外反馈集合
-    private final Map<String, Callback> callbacks = new ConcurrentHashMap<>();
+    private final Map<Long, Callback> callbacks = new ConcurrentHashMap<>();
 
     // 超时处理
     private TimeOutRunnable timeOut = new TimeOutRunnable(this);
@@ -61,26 +61,26 @@ public class Dispatcher {
      *
      * @param topic 主题
      */
-    public DataConverter<String, String> callbackNameConverter(String topic) {
-        return nextCallbackNameConverter(null, topic);
+    public DataConverter<byte[], Long> callbackNameCodeConverter(byte[] topic) {
+        return nextCallbackNameCodeConverter(null, topic);
     }
 
-    private DataConverter<String, String> nextCallbackNameConverter(
-            @Nullable DataConverter.Factory skipPast, String topic) {
+    private DataConverter<byte[], Long> nextCallbackNameCodeConverter(
+            @Nullable DataConverter.Factory skipPast, byte[] topic) {
         if (converterFactories == null || converterFactories.size() == 0)
             throw new IllegalStateException("converterFactories == null");
 
         int start = converterFactories.indexOf(skipPast) + 1;
         for (int i = start, count = converterFactories.size(); i < count; i++) {
-            DataConverter<String, String> converter =
-                    converterFactories.get(i).callbackNameConverter(topic);
+            DataConverter<byte[], Long> converter =
+                    converterFactories.get(i).callbackNameCodeConverter(topic);
             if (converter != null) {
                 return converter;
             }
         }
 
         StringBuilder builder = new StringBuilder("Could not locate ResponseBody converter for ")
-                .append(topic)
+                .append(Arrays.toString(topic))
                 .append(".\n");
         if (skipPast != null) {
             builder.append("  Skipped:");
@@ -109,18 +109,18 @@ public class Dispatcher {
     /**
      * 核实数据转化器
      */
-    public DataConverter<StringBuffer, DataCheckBean> checkDataConverter() {
+    public DataConverter<SafetyByteBuffer, DataCheckBean> checkDataConverter() {
         return nextCheckDataConverter(null);
     }
 
-    private DataConverter<StringBuffer, DataCheckBean> nextCheckDataConverter(
+    private DataConverter<SafetyByteBuffer, DataCheckBean> nextCheckDataConverter(
             @Nullable DataConverter.Factory skipPast) {
         if (converterFactories == null || converterFactories.size() == 0)
             throw new IllegalStateException("converterFactories == null");
 
         int start = converterFactories.indexOf(skipPast) + 1;
         for (int i = start, count = converterFactories.size(); i < count; i++) {
-            DataConverter<StringBuffer, DataCheckBean> converter =
+            DataConverter<SafetyByteBuffer, DataCheckBean> converter =
                     ((DataConverterFactory) converterFactories.get(i)).checkDataConverter();
             if (converter != null) {
                 return converter;
@@ -152,12 +152,12 @@ public class Dispatcher {
         publishService.execute(call);
     }
 
-    public void addCallback(String backName, Callback callback) {
-        callbacks.put(backName, callback);
+    public void addCallback(long backNameCode, Callback callback) {
+        callbacks.put(backNameCode, callback);
     }
 
-    public void removeCallback(String backName) {
-        callbacks.remove(backName);
+    public void removeCallback(long backNameCode) {
+        callbacks.remove(backNameCode);
     }
 
 
@@ -176,10 +176,10 @@ public class Dispatcher {
         DelayEvent event = DelayEvent.build(call.id(), call.delayDate());
 
         // 添加准备反馈任务集合
-        readyCalls.put(call.id(), ReadyTask.build(call.id(), call.backName(), call.callback(), event));
+        readyCalls.put(call.id(), ReadyTask.build(call.id(), call.backNameCode(), call.callback(), event));
 
         // 添加网络反馈集合
-        dataCalls.put(call.backName(), getNetCallDeque(call.backName(), call.id()));
+        dataCalls.put(call.backNameCode(), getNetCallDeque(call.backNameCode(), call.id()));
 
         return event;
     }
@@ -204,12 +204,12 @@ public class Dispatcher {
     /**
      * 填充反馈集合
      *
-     * @param name 反馈主题
+     * @param code 反馈主题Code
      * @param id   UUID
      * @return Deque<String>
      */
-    private Deque<String> getNetCallDeque(String name, String id) {
-        Deque<String> callbacks = dataCalls.get(name);
+    private Deque<String> getNetCallDeque(long code, String id) {
+        Deque<String> callbacks = dataCalls.get(code);
         if (callbacks == null)
             callbacks = new ArrayDeque<>();
 
@@ -225,9 +225,13 @@ public class Dispatcher {
      *
      * @param id 请求UUID
      */
-    public synchronized void finishedByNet(String id, String backName, Response response) {
+    public synchronized void finishedByNet(String id, long backNameCode, Response response) {
 
-        noticeCallback(backName, response);
+        noticeCallback(backNameCode, response);
+
+        if (id == null) {
+            return;
+        }
 
         ReadyTask task = distributeTask(id);
         if (task == null)
@@ -251,14 +255,14 @@ public class Dispatcher {
     /**
      * 反馈通知
      *
-     * @param backName 反馈名
+     * @param backNameCode 反馈名Code
      * @param response 反馈结果
      */
-    private void noticeCallback(String backName, Response response) {
-        if (backName == null)
+    private void noticeCallback(long backNameCode, Response response) {
+        if (backNameCode == -1)
             return;
 
-        Callback callback = callbacks.get(backName);
+        Callback callback = callbacks.get(backNameCode);
 
         if (callback == null)
             return;
@@ -309,26 +313,24 @@ public class Dispatcher {
     private synchronized void removeCall(@NonNull ReadyTask task) {
 
         // 移除网络反馈监听
-        Deque<String> deque = dataCalls.get(task.getBackName());
+        Deque<String> deque = dataCalls.get(task.getBackNameCode());
 
         if (deque != null && deque.size() > 0)
             deque.remove(task.getId());
 
         readyCalls.remove(task.getId());
-
-
     }
 
 
     /**
      * 通过反馈名称得到网络集合中第一个数据，并且移除
      *
-     * @param backName 反馈名称
+     * @param backNameCode 反馈名称Code
      * @return uuid
      */
-    public String findNetByBackNameToFirst(String backName) {
+    public String findNetByBackNameToFirst(long backNameCode) {
         synchronized (dataCalls) {
-            Deque<String> deque = dataCalls.get(backName);
+            Deque<String> deque = dataCalls.get(backNameCode);
             if (deque == null || deque.size() == 0)
                 return null;
 

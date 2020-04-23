@@ -139,13 +139,12 @@ public class CharsUtils {
      *
      * @return String 每个Byte值之间空格分隔
      */
-    public static String byte2HexStr2(byte[] b) {
+    public static String byte2HexStrNotEmpty(byte[] b) {
         String stmp;
         StringBuilder sb = new StringBuilder();
         for (byte value : b) {
-            stmp = Integer.toHexString(value);
+            stmp = Integer.toHexString(value & 0xFF);
             sb.append((stmp.length() == 1) ? "0" + stmp : stmp);
-            sb.append(" ");
         }
         return sb.toString().toUpperCase().trim();
     }
@@ -194,6 +193,42 @@ public class CharsUtils {
         return sb.toString();
     }
 
+    /**
+     * 求校验和的算法
+     *
+     * @param msg 需要求校验和的字节数组
+     * @return 校验和
+     */
+    public static byte sumCheck(byte[] msg) {
+        long sum = 0;
 
+        /* 逐Byte添加位数和 */
+        for (byte byteMsg : msg) {
+            if (byteMsg < 0) {
+                sum += byteMsg & 0xff;
+            } else {
+                sum += byteMsg;
+            }
+
+            if (sum > 0xff) {
+                sum &= 0xff;
+            }
+        }
+
+        return (byte) (sum & 0xff);
+    }
+
+    public static String sumCheckToHexStr(byte[] msg) {
+        byte b = sumCheck(msg);
+        return byteToHex(b);
+    }
+
+    public static String byteToHex(byte b) {
+        String hex = Integer.toHexString(b & 0xFF);
+        if (hex.length() < 2) {
+            hex = "0" + hex;
+        }
+        return hex.toUpperCase().trim();
+    }
 
 }

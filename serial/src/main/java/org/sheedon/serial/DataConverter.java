@@ -13,7 +13,7 @@ public interface DataConverter<F, T> {
     T convert(F value);
 
     abstract class Factory {
-        public @Nullable DataConverter<String, String> callbackNameConverter(String topic) {
+        public @Nullable DataConverter<byte[], Long> callbackNameCodeConverter(byte[] topic) {
             return null;
         }
 

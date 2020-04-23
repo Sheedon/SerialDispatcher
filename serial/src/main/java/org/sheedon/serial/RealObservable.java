@@ -43,13 +43,12 @@ final class RealObservable implements Observable {
     @Override
     public void subscribe(Callback callback) {
         if (originalRequest == null
-                || originalRequest.backName() == null
-                || originalRequest.backName().isEmpty()
+                || originalRequest.backNameCode() == -1
                 || callback == null) {
             return;
         }
 
-        client.dispatcher().addCallback(originalRequest.backName(), callback);
+        client.dispatcher().addCallback(originalRequest.backNameCode(), callback);
     }
 
     /**
@@ -58,11 +57,10 @@ final class RealObservable implements Observable {
     @Override
     public void cancel() {
         if (originalRequest == null
-                || originalRequest.backName() == null
-                || originalRequest.backName().isEmpty()) {
+                || originalRequest.backNameCode() == -1) {
             return;
         }
-        client.dispatcher().removeCallback(originalRequest.backName());
+        client.dispatcher().removeCallback(originalRequest.backNameCode());
     }
 
     @Override

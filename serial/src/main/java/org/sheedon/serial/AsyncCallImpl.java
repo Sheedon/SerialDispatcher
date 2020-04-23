@@ -22,4 +22,7 @@ public interface AsyncCallImpl {
 
     // 反馈名称
     String backName();
+
+    // 反馈名称Code
+    long backNameCode();
 }

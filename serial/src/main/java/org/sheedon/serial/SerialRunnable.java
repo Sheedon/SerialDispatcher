@@ -29,20 +29,20 @@ public class SerialRunnable extends NamedRunnable {
     protected void execute() {
 
         // 设置反馈名称和类型的默认值
-        String backName = name;
+        long backNameCode = -1;
 
         // 借助具体客户端工具转化反馈名
-        DataConverter<String, String> converter = dispatcher.callbackNameConverter(data.getBody());
+        DataConverter<byte[], Long> converter = dispatcher.callbackNameCodeConverter(data.getBody());
         if (converter != null) {
-            backName = converter.convert(data.getBody());
+            backNameCode = converter.convert(data.getBody());
         }
 
 
         // 获取UUID
-        String id = dispatcher.findNetByBackNameToFirst(backName);
+        String id = dispatcher.findNetByBackNameToFirst(backNameCode);
 
         // 结束网络调度
-        dispatcher.finishedByNet(id, backName, getResponse(data));
+        dispatcher.finishedByNet(id, backNameCode, getResponse(data));
     }
 
     /**

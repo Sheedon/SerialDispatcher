@@ -8,16 +8,16 @@ package org.sheedon.serial;
  */
 public class ReadyTask {
     private String id;// 任务UUID
-    private String backName; // 反馈名称
+    private long backNameCode; // 反馈名称编号
     private Callback callback;// 反馈监听器
     private DelayEvent event;// 超时处理事件
 
 
-    public static ReadyTask build(String id, String backName,
+    public static ReadyTask build(String id, long backNameCode,
                                   Callback callback, DelayEvent event) {
         ReadyTask task = new ReadyTask();
         task.id = id;
-        task.backName = backName;
+        task.backNameCode = backNameCode;
         task.callback = callback;
         task.event = event;
         return task;
@@ -27,8 +27,8 @@ public class ReadyTask {
         return id;
     }
 
-    public String getBackName() {
-        return backName;
+    public long getBackNameCode() {
+        return backNameCode;
     }
 
     public Callback getCallback() {

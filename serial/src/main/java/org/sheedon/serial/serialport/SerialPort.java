@@ -1,10 +1,10 @@
 package org.sheedon.serial.serialport;
 
-
 import org.sheedon.serial.DataCheckBean;
 import org.sheedon.serial.DataConverter;
 import org.sheedon.serial.Dispatcher;
 import org.sheedon.serial.NamedRunnable;
+import org.sheedon.serial.SafetyByteBuffer;
 import org.sheedon.serial.Util;
 import org.sheedon.serial.internal.CharsUtils;
 
@@ -28,8 +28,8 @@ public class SerialPort {
 
     private SerialRealCallback callback;
 
-    private DataConverter<StringBuffer, DataCheckBean> converter;
-    private StringBuffer serialData = new StringBuffer();
+    private DataConverter<SafetyByteBuffer, DataCheckBean> converter;
+    private SafetyByteBuffer serialData = new SafetyByteBuffer();
 
     private Thread thread;
 
@@ -93,14 +93,11 @@ public class SerialPort {
          */
         private void readThread() {
 
-            final byte[] data = getDataByte();
+            byte[] data = getDataByte();
             if (data == null || callback == null)
                 return;
 
-            String info = CharsUtils.byte2HexStr(data)
-                    .replace(" ", "");
-
-            serialData.append(info);
+            serialData.append(data);
             dealWithData();
         }
     }
@@ -183,15 +180,15 @@ public class SerialPort {
             serialPort = null;
         }
 
-        if(inputStream != null){
+        if (inputStream != null) {
             inputStream = null;
         }
 
-        if(outputStream != null){
+        if (outputStream != null) {
             outputStream = null;
         }
 
-        if(thread != null){
+        if (thread != null) {
             thread.interrupt();
             thread = null;
         }

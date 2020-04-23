@@ -11,14 +11,14 @@ package org.sheedon.serial;
  */
 public class ResponseBody {
 
-    private String startBit;
-    private String messageBit;
-    private String parityBit;
-    private String endBit;
-    private String info;
+    private byte[] startBit;
+    private byte[] messageBit;
+    private byte[] parityBit;
+    private byte[] endBit;
+    private byte[] info;
 
-    public static ResponseBody build(String startBit, String messageBit,
-                                     String parityBit, String endBit, String info) {
+    public static ResponseBody build(byte[] startBit, byte[] messageBit,
+                                     byte[] parityBit, byte[] endBit, byte[] info) {
         ResponseBody body = new ResponseBody();
         body.startBit = startBit;
         body.messageBit = messageBit;
@@ -28,39 +28,39 @@ public class ResponseBody {
         return body;
     }
 
-    public String getStartBit() {
+    public byte[] getStartBit() {
         return startBit;
     }
 
-    public void setStartBit(String startBit) {
+    public void setStartBit(byte[] startBit) {
         this.startBit = startBit;
     }
 
-    public String getMessageBit() {
+    public byte[] getMessageBit() {
         return messageBit;
     }
 
-    public void setMessageBit(String messageBit) {
+    public void setMessageBit(byte[] messageBit) {
         this.messageBit = messageBit;
     }
 
-    public String getParityBit() {
+    public byte[] getParityBit() {
         return parityBit;
     }
 
-    public void setParityBit(String parityBit) {
+    public void setParityBit(byte[] parityBit) {
         this.parityBit = parityBit;
     }
 
-    public String getEndBit() {
+    public byte[] getEndBit() {
         return endBit;
     }
 
-    public void setEndBit(String endBit) {
+    public void setEndBit(byte[] endBit) {
         this.endBit = endBit;
     }
 
-    public String getBody() {
+    public byte[] getBody() {
         return info;
     }
 

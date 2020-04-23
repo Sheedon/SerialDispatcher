@@ -1,11 +1,12 @@
 package org.sheedon.demo.converters;
 
-
 import org.sheedon.serial.DataCheckBean;
 import org.sheedon.serial.DataConverter;
 import org.sheedon.serial.ResponseBody;
-import org.sheedon.serial.utils.CRC16M;
-import org.sheedon.serial.utils.CRC_16;
+import org.sheedon.serial.SafetyByteBuffer;
+import org.sheedon.serial.internal.CharsUtils;
+
+import java.util.Arrays;
 
 /**
  * 反馈内容解析器
@@ -14,10 +15,10 @@ import org.sheedon.serial.utils.CRC_16;
  * @Email: sheedonsun@163.com
  * @Date: 2020/3/11 0:45
  */
-public class CheckDataConverter implements DataConverter<StringBuffer, DataCheckBean> {
+public class CheckDataConverter implements DataConverter<SafetyByteBuffer, DataCheckBean> {
 
-    private static final String STARTBIT = "7A";
-    private static final String ENDBIT = "";
+    private static final byte STARTBIT = (byte) 0xBB;
+    private static final byte ENDBIT = 0x7E;
 
     CheckDataConverter() {
 
@@ -27,7 +28,7 @@ public class CheckDataConverter implements DataConverter<StringBuffer, DataCheck
     // 协议头  数据长度位  子控设备地址  命令类型    消息体    CRC16校验
     // 7A      0800         01              03         01       B07A
     @Override
-    public DataCheckBean convert(StringBuffer value) {
+    public DataCheckBean convert(SafetyByteBuffer value) {
         if (value == null || value.length() == 0) {
             return DataCheckBean.build(null, 0);
         }
@@ -37,28 +38,32 @@ public class CheckDataConverter implements DataConverter<StringBuffer, DataCheck
             return DataCheckBean.build(null, 0);
         }
 
-        if (index + 6 >= value.length()) {
+        if (index + 5 >= value.length()) {
             return DataCheckBean.build(null, index);
         }
 
         // 一个内容到总长度
-        String lengthStr = value.substring(index + 2, index + 6);
-        int length = calcLength(lengthStr) * 2;
-        if (length < 0 || index + length > value.length()) {
+        byte[] lengthStr = value.substring(index + 3, index + 5);
+        int length = calcLength(lengthStr);
+        if (length < 0 || index + length + 7 > value.length()) {
             return DataCheckBean.build(null, index);
         }
 
-        String content = value.substring(index, index + length);
+        byte[] content = value.substring(index + 1, index + length + 6);
         boolean check = checkContent(content);
         if (check) {
-            ResponseBody body = ResponseBody.build(STARTBIT,
-                    content.substring(STARTBIT.length(), content.length() - 4),
-                    content.substring(content.length() - 4),
-                    ENDBIT, content);
 
-            return DataCheckBean.build(body, index + length);
+            byte[] startBit = new byte[]{STARTBIT};
+            byte[] messageBit = Arrays.copyOf(content, content.length - 1);
+            byte[] parityBit = Arrays.copyOfRange(content, content.length - 1, content.length);
+            byte[] endBit = new byte[]{ENDBIT};
+
+            ResponseBody body = ResponseBody.build(startBit, messageBit, parityBit, endBit,
+                    value.substring(index, index + length + 7));
+
+            return DataCheckBean.build(body, index + length + 7);
         } else {
-            return DataCheckBean.build(null, index + length);
+            return DataCheckBean.build(null, index + length + 7);
         }
     }
 
@@ -67,12 +72,12 @@ public class CheckDataConverter implements DataConverter<StringBuffer, DataCheck
      *
      * @param str 字符
      */
-    private int calcLength(String str) {
-        String lowPosition = str.substring(0, 2);
-        String highPosition = str.substring(2, 4);
+    private int calcLength(byte[] str) {
+        byte highPosition = str[0];
+        byte lowPosition = str[1];
 
-        int low = Integer.parseInt(lowPosition, 16);
-        int high = Integer.parseInt(highPosition, 16);
+        int high = highPosition & 0xFF;
+        int low = lowPosition & 0xFF;
 
         return high * 16 * 16 + low;
 
@@ -81,24 +86,21 @@ public class CheckDataConverter implements DataConverter<StringBuffer, DataCheck
 
     /**
      * 核实内容校验码
-     * 拿到校验码 后四位
-     * 拿到内容 除了后四位外的数据
+     * 拿到校验码 后两位
+     * 拿到内容 除了后两位外的数据
      *
      * @param content 内容
      * @return 校验是否一致
      */
-    private boolean checkContent(String content) {
-        if (content.length() <= 4)
+    private boolean checkContent(byte[] content) {
+        if (content.length <= 1)
             return false;
 
-        String checkStr = content.substring(content.length() - 4);
-        String contentStr = content.substring(0, content.length() - 4);
-        StringBuilder checkResult = new StringBuilder(CRC16M.getBufHexStr(CRC_16.getSendBuf(contentStr)));
-        checkResult = checkResult.delete(0, content.length() - 4);
-        for (int index = checkResult.length(); index < 4; index++) {
-            checkResult.insert(0, "0");
-        }
+        byte checkByte = content[content.length - 1];
+        byte[] contentBytes = Arrays.copyOf(content, content.length - 1);
+        byte checkResult = CharsUtils.sumCheck(contentBytes);
 
-        return checkResult.toString().equalsIgnoreCase(checkStr);
+        return checkByte == checkResult;
     }
+
 }

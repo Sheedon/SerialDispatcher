@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
  */
 public abstract class DataConverterFactory extends DataConverter.Factory {
     public @Nullable
-    DataConverter<StringBuffer, DataCheckBean> checkDataConverter() {
+    DataConverter<SafetyByteBuffer, DataCheckBean> checkDataConverter() {
         return null;
     }
 }

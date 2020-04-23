@@ -24,57 +24,35 @@ public class MainActivity extends AppCompatActivity implements SerialRealCallbac
         setContentView(R.layout.activity_main);
 
         final SerialClient client = new SerialClient.Builder()
-                .path("/dev/ttyS2")
+                .path("/dev/ttyS1")
                 .baudRate(115200)
                 .name("115200")
                 .addConverterFactory(DataConverterFactory.create())
                 .callback(this)
                 .build();
 
-        new Thread(new Runnable() {
+        Request request = new RequestBuilder()
+                .backName("01FF")
+                .data("")
+                .build();
+
+
+
+
+        Call call = client.newCall(request);
+        Observable observable = client.newObservable(request);
+        observable.subscribe(new Callback<Response>() {
             @Override
-            public void run() {
-                while (true){
-                    Request request = new RequestBuilder()
-                            .backName("0007")
-                            .data("7A07000006BC7C")
-                            .build();
-
-                    Call call = client.newCall(request);
-                    call.enqueue(new Callback<Response>() {
-                        @Override
-                        public void onFailure(Throwable e) {
-
-                        }
-
-                        @Override
-                        public void onResponse(Response response) {
-
-                        }
-                    });
-
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+            public void onFailure(Throwable e) {
+                System.out.println(e);
             }
-        }).start();
-//        Call call = client.newCall(request);
-//        Observable observable = client.newObservable(request);
-//        observable.subscribe(new Callback<Response>() {
-//            @Override
-//            public void onFailure(Throwable e) {
-//                System.out.println(e);
-//            }
-//
-//            @Override
-//            public void onResponse(Response response) {
-//                ResponseBody body = response.body();
-//                System.out.println(body == null ? "" : body.getBody());
-//            }
-//        });
+
+            @Override
+            public void onResponse(Response response) {
+                ResponseBody body = response.body();
+                System.out.println(body == null ? "" : body.getBody());
+            }
+        });
 
 //        call.enqueue(new Callback() {
 //            @Override
@@ -98,6 +76,6 @@ public class MainActivity extends AppCompatActivity implements SerialRealCallbac
 
     @Override
     public void onCallback(ResponseBody data) {
-        Log.v("SXD",data.getBody());
+        Log.v("SXD",data.toString());
     }
 }
