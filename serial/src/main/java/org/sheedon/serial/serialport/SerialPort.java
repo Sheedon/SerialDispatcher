@@ -33,19 +33,23 @@ public class SerialPort {
 
     private Thread thread;
 
+    private int interval;
+
     /**
      * 构建 创建客户端
      *
      * @param path     路径
      * @param baudRate 波特率
      * @param flags    标志位
+     * @param interval 线程间隔
      * @param callback 反馈
      */
-    public SerialPort(String path, int baudRate, int flags,
+    public SerialPort(String path, int baudRate, int flags, int interval,
                       SerialRealCallback callback, Dispatcher dispatcher)
             throws IOException, SecurityException {
         Util.checkNotNull(path, "path is null");
         Util.checkNotNull(dispatcher, "dispatcher is null");
+        this.interval = interval;
         converter = Util.checkNotNull(dispatcher.checkDataConverter(), "converter is null");
         SerialRunnable runnable = new SerialRunnable(path);
         this.callback = callback;
@@ -81,7 +85,7 @@ public class SerialPort {
             while (!Thread.currentThread().isInterrupted()) {
                 readThread();
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(interval);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

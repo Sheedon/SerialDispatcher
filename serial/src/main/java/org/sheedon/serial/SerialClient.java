@@ -48,7 +48,7 @@ public class SerialClient implements SerialRealCallback, RealClient,
 
         checkNotNull(builder.path, "path is null");
         try {
-            port = new SerialPort(builder.path, builder.baudRate, builder.flags, this, this.dispatcher);
+            port = new SerialPort(builder.path, builder.baudRate, builder.flags, builder.threadSleepTime, this, this.dispatcher);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SecurityException e) {
@@ -113,6 +113,8 @@ public class SerialClient implements SerialRealCallback, RealClient,
 
         String name;
 
+        int threadSleepTime;
+
         int messageTimeout;
 
         SerialRealCallback callback;
@@ -123,6 +125,7 @@ public class SerialClient implements SerialRealCallback, RealClient,
         public Builder() {
             dispatcher = new Dispatcher();
             baudRate = 9600;
+            threadSleepTime = 1000;
             flags = 0;
             messageTimeout = 5;
             name = String.format("%d", this.getClass().hashCode());
@@ -142,6 +145,20 @@ public class SerialClient implements SerialRealCallback, RealClient,
          */
         public Builder path(@NonNull String path) {
             this.path = path;
+            return this;
+        }
+
+        /**
+         * 设置线程数据获取间隔
+         * 建议大于100毫秒
+         *
+         * @param interval 间隔
+         */
+        public Builder threadSleepTime(int interval) {
+            if (interval < 50)
+                return this;
+
+            this.threadSleepTime = interval;
             return this;
         }
 
