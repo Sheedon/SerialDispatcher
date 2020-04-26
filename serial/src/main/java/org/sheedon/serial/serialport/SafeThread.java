@@ -13,7 +13,6 @@ import java.util.TimerTask;
  * @Date: 2020/4/26 10:34
  */
 public class SafeThread {
-    private final static SafeThread INSTANCE = new SafeThread();
 
     private Thread thread;
     private int interval;
@@ -23,12 +22,6 @@ public class SafeThread {
 
     private OnThreadHandleListener listener;
 
-    private SafeThread() {
-    }
-
-    public static SafeThread getInstance() {
-        return INSTANCE;
-    }
 
     public void initConfig(int interval, OnThreadHandleListener listener) {
         this.interval = interval;

@@ -31,6 +31,7 @@ public class SerialPort implements SafeThread.OnThreadHandleListener{
     private SafetyByteBuffer serialData = new SafetyByteBuffer();
 
     private int interval;
+    private SafeThread safeThread;
 
     /**
      * 构建 创建客户端
@@ -56,7 +57,8 @@ public class SerialPort implements SafeThread.OnThreadHandleListener{
         inputStream = serialPort.getInputStream();
         outputStream = serialPort.getOutputStream();
 
-        SafeThread.getInstance().initConfig(interval,this);
+        safeThread = new SafeThread();
+        safeThread.initConfig(interval,this);
 
     }
 
