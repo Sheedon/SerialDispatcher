@@ -3,7 +3,6 @@ package org.sheedon.serial.serialport;
 import org.sheedon.serial.DataCheckBean;
 import org.sheedon.serial.DataConverter;
 import org.sheedon.serial.Dispatcher;
-import org.sheedon.serial.NamedRunnable;
 import org.sheedon.serial.SafetyByteBuffer;
 import org.sheedon.serial.Util;
 import org.sheedon.serial.internal.CharsUtils;
@@ -20,7 +19,7 @@ import java.io.OutputStream;
  * @Email: sheedonsun@163.com
  * @Date: 2020/2/21 9:27
  */
-public class SerialPort {
+public class SerialPort implements SafeThread.OnThreadHandleListener{
 
     private android.serialport.SerialPort serialPort;
     private InputStream inputStream;
@@ -30,8 +29,6 @@ public class SerialPort {
 
     private DataConverter<SafetyByteBuffer, DataCheckBean> converter;
     private SafetyByteBuffer serialData = new SafetyByteBuffer();
-
-    private Thread thread;
 
     private int interval;
 
@@ -51,7 +48,7 @@ public class SerialPort {
         Util.checkNotNull(dispatcher, "dispatcher is null");
         this.interval = interval;
         converter = Util.checkNotNull(dispatcher.checkDataConverter(), "converter is null");
-        SerialRunnable runnable = new SerialRunnable(path);
+
         this.callback = callback;
 
         serialPort = new android.serialport.SerialPort(new File(path), baudRate, flags);
@@ -59,8 +56,7 @@ public class SerialPort {
         inputStream = serialPort.getInputStream();
         outputStream = serialPort.getOutputStream();
 
-        thread = new Thread(runnable);
-        thread.start();
+        SafeThread.getInstance().initConfig(interval,this);
 
     }
 
@@ -73,37 +69,14 @@ public class SerialPort {
         this.callback = callback;
     }
 
-    // 串口 Runnable
-    final class SerialRunnable extends NamedRunnable {
+    @Override
+    public void readThread() {
+        byte[] data = getDataByte();
+        if (data == null || callback == null)
+            return;
 
-        SerialRunnable(String name) {
-            super("SerialRunnable %s", name);
-        }
-
-        @Override
-        protected void execute() {
-            while (!Thread.currentThread().isInterrupted()) {
-                readThread();
-                try {
-                    Thread.sleep(interval);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        /**
-         * 解析数据
-         */
-        private void readThread() {
-
-            byte[] data = getDataByte();
-            if (data == null || callback == null)
-                return;
-
-            serialData.append(data);
-            dealWithData();
-        }
+        serialData.append(data);
+        dealWithData();
     }
 
     private volatile boolean isStartDealWithData = false;
@@ -190,11 +163,6 @@ public class SerialPort {
 
         if (outputStream != null) {
             outputStream = null;
-        }
-
-        if (thread != null) {
-            thread.interrupt();
-            thread = null;
         }
 
     }
