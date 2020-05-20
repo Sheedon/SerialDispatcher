@@ -79,7 +79,8 @@ public class SerialClient implements SerialRealCallback, RealClient,
     }
 
     public void destroy() {
-        port.closeSerialPort();
+        if (port != null)
+            port.closeSerialPort();
         port = null;
     }
 
