@@ -77,6 +77,24 @@ public class SafeThread {
         }
     };
 
+    public void close() {
+        if (pingTimer != null) {
+            pingTimer.cancel();
+            pingTimer = null;
+        }
+
+        if (pingTask != null) {
+            pingTask.cancel();
+            pingTask = null;
+        }
+
+        if (thread != null) {
+            thread.interrupt();
+            thread = null;
+        }
+
+    }
+
     interface OnThreadHandleListener {
         void readThread();
     }

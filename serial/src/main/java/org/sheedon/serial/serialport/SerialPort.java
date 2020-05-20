@@ -19,7 +19,7 @@ import java.io.OutputStream;
  * @Email: sheedonsun@163.com
  * @Date: 2020/2/21 9:27
  */
-public class SerialPort implements SafeThread.OnThreadHandleListener{
+public class SerialPort implements SafeThread.OnThreadHandleListener {
 
     private android.serialport.SerialPort serialPort;
     private InputStream inputStream;
@@ -58,7 +58,7 @@ public class SerialPort implements SafeThread.OnThreadHandleListener{
         outputStream = serialPort.getOutputStream();
 
         safeThread = new SafeThread();
-        safeThread.initConfig(interval,this);
+        safeThread.initConfig(interval, this);
 
     }
 
@@ -113,7 +113,8 @@ public class SerialPort implements SafeThread.OnThreadHandleListener{
      * @throws NullPointerException 如果inputStream为空，就抛出异常
      */
     private synchronized byte[] getDataByte() throws NullPointerException {
-        if (inputStream == null) throw new NullPointerException("is null");
+        if (inputStream == null)
+            return null;
         try {
             int size = inputStream.available();
             if (size > 0) {
@@ -140,7 +141,8 @@ public class SerialPort implements SafeThread.OnThreadHandleListener{
      * @param bytes 显示的16进制的字符串
      */
     private boolean setData(byte[] bytes) throws NullPointerException {
-        if (outputStream == null) throw new NullPointerException("outputStream为空");
+        if (outputStream == null)
+            return false;
         try {
             outputStream.write(bytes);
             return true;//发送成功
@@ -154,6 +156,10 @@ public class SerialPort implements SafeThread.OnThreadHandleListener{
      * 关闭串口
      */
     public void closeSerialPort() {
+        if(safeThread != null){
+            safeThread.close();
+            safeThread = null;
+        }
         if (serialPort != null) {
             serialPort.close();
             serialPort = null;
