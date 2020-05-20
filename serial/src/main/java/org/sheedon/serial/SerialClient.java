@@ -78,6 +78,11 @@ public class SerialClient implements SerialRealCallback, RealClient,
         return RealObservable.newRealObservable(this, request);
     }
 
+    public void destroy() {
+        port.closeSerialPort();
+        port = null;
+    }
+
 
     @Override
     public void onCallback(ResponseBody data) {
