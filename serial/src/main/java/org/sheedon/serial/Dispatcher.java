@@ -156,6 +156,16 @@ public class Dispatcher {
         callbacks.put(backNameCode, callback);
     }
 
+    /**
+     * 是否存在指定反馈
+     *
+     * @param backNameCode 反馈名
+     */
+    public boolean hasCallback(long backNameCode) {
+        Callback callback = callbacks.get(backNameCode);
+        return callback != null;
+    }
+
     public void removeCallback(long backNameCode) {
         callbacks.remove(backNameCode);
     }
@@ -256,7 +266,7 @@ public class Dispatcher {
      * 反馈通知
      *
      * @param backNameCode 反馈名Code
-     * @param response 反馈结果
+     * @param response     反馈结果
      */
     private void noticeCallback(long backNameCode, Response response) {
         if (backNameCode == -1)
