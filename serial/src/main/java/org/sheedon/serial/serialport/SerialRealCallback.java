@@ -13,4 +13,6 @@ public interface SerialRealCallback {
 
     void onCallback(ResponseBody data);
 
+    void onRequest(String message);
+
 }

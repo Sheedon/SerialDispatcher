@@ -37,8 +37,6 @@ public class MainActivity extends AppCompatActivity implements SerialRealCallbac
                 .build();
 
 
-
-
         Call call = client.newCall(request);
         Observable observable = client.newObservable(request);
         observable.subscribe(new Callback<Response>() {
@@ -76,6 +74,11 @@ public class MainActivity extends AppCompatActivity implements SerialRealCallbac
 
     @Override
     public void onCallback(ResponseBody data) {
-        Log.v("SXD",data.toString());
+        Log.v("SXD", data.toString());
+    }
+
+    @Override
+    public void onRequest(String message) {
+        Log.v("SXD", message);
     }
 }

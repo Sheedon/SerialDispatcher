@@ -95,6 +95,13 @@ public class SerialClient implements SerialRealCallback, RealClient,
         callback.onCallback(data);
     }
 
+    @Override
+    public void onRequest(String message) {
+        if (callback == null)
+            return;
+        callback.onRequest(message);
+    }
+
     /**
      * 获取调度器
      */

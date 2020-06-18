@@ -163,6 +163,7 @@ final class RealCall implements Call {
             }
 
             boolean isSuccess = serialClient.port.sendMessage(data);
+            serialClient.onRequest(data);
 
             if (!isSuccess) {
                 client.dispatcher().finishedByLocal(id(), new IllegalStateException("publish is failure"));
