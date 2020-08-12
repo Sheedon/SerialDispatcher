@@ -78,6 +78,11 @@ public class SerialClient implements SerialRealCallback, RealClient,
         return RealObservable.newRealObservable(this, request);
     }
 
+    //串口是否有效
+    public boolean isAlive() {
+        return port != null && port.isAlive();
+    }
+
     public void destroy() {
         if (port != null)
             port.closeSerialPort();

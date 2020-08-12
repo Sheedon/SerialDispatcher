@@ -62,6 +62,10 @@ public class SerialPort implements SafeThread.OnThreadHandleListener {
 
     }
 
+    public boolean isAlive() {
+        return serialPort != null && serialPort.getInputStream() != null && serialPort.getOutputStream() != null;
+    }
+
     /**
      * 真实反馈一个就足够
      *
@@ -96,14 +100,12 @@ public class SerialPort implements SafeThread.OnThreadHandleListener {
             if (convert.getEndIndex() == 0)
                 break;
 
-            if (convert.getBody() == null) {
-                serialData.delete(0, convert.getEndIndex());
-            } else {
+            if (convert.getBody() != null) {
                 if (callback != null) {
                     callback.onCallback(convert.getBody());
                 }
-                serialData.delete(0, convert.getEndIndex());
             }
+            serialData.delete(0, convert.getEndIndex());
         }
         isStartDealWithData = false;
     }
@@ -156,7 +158,7 @@ public class SerialPort implements SafeThread.OnThreadHandleListener {
      * 关闭串口
      */
     public void closeSerialPort() {
-        if(safeThread != null){
+        if (safeThread != null) {
             safeThread.close();
             safeThread = null;
         }
